@@ -1,0 +1,30 @@
+html {
+    background-color: #eee;
+}
+body{
+	font-family:"Trebuchet MS";
+}
+
+#translator_title{
+	margin: 10px 10px 10px 10px;
+}
+
+#translator{
+	margin:10px 10px 10px 10px;
+}
+#translator td{
+	padding-right:10px;
+}
+
+.correct, .correct_entry{
+	color:blue;
+}
+.incorrect,.incorrect_answer{
+	color:red; 
+}
+.incorrect_entry{
+	color:red; 
+	text-decoration: line-through;
+
+}
+/* Your CSS here */
