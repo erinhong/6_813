@@ -19,12 +19,9 @@ body{
 .correct, .correct_entry{
 	color:blue;
 }
-.incorrect,.incorrect_answer{
+.red{
 	color:red; 
 }
-.incorrect_entry{
-	color:red; 
+.strikethrough{
 	text-decoration: line-through;
-
 }
-/* Your CSS here */
