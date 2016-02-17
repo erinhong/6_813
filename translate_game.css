@@ -36,8 +36,10 @@ body{
 	color: gray;
 }
 #score_table{
-	height: 500px;
+	text-align:center;
+	height: 300px;
 	width: 300px;
+	padding-top:2px;
 	background-color: #ecd9c6;
 }
 
@@ -50,4 +52,8 @@ body{
 }
 #right{
 	float:left;
+}
+#timer{
+	text-align:center;
+	font-size: 40pt;
 }

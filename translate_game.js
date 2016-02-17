@@ -6,77 +6,88 @@ $(function() {
 	var lang_from = "Spanish";
 	var current_dict = dicts[lang_to][lang_from]; // keys: words in @lang_to, values: corresponding words in @lang_from 	
 	var current_dict_length = Object.keys(current_dict).length;
-	var answer_words = Object.keys(current_dict); 
 	var keys = Object.keys(current_dict); 
 
 	var current_answer = ""; 
 	var current_test_word = ""; 
 	var correctness = false; 
-	var guess = document.getElementById("user_guess"); 
-	guess.focus(); 
+	var guess_char_limit = 40;
 
+	var guess = document.getElementById("user_guess"); 
 	var autocomplete_length = 0; 
 
-	//First generated word 
-	var next = generateRandomWord();
+	//for additional features 
+	var completed = 0 ; 
+	var got_correct = 0 ; 
+
+	//Begin with focus and generate first word 
+	guess.focus(); 
+	generateRandomWord();
 	updateTestWord(current_test_word); 
+	updateScore();
 
 	//Code for when user wants to see answer 
 	var button = $("#see_answer_button"); 
 	$(button).click(function(){
-
+		//submit, clear entry, refocus 
 		submit(guess.value); 
-
-		//Reset the text field and re-focus on the text box 
 		guess.value=""; 
 		guess.focus(); 
 	}); 
 
-	$(guess).keyup(function(e){
+	$(guess).keypress(function(e){
 		if (e.keyCode ==13){
 			// if entered while autocomplete was closed or length is 0. 
-			if (!!$($("#user_guess").autocomplete('widget')).is(":visible") || autocomplete_length ===0){
-				$("#user_guess").autocomplete("close"); 
-				submit(guess.value); 
-				guess.value = ""; 
-				guess.focus(); 
-			}
+			submit(guess.value); 
+			guess.value = ""; 
+			guess.focus(); 
+			$(guess).autocomplete("close");
 		}
-	})
+	});
 
-
+	//Code to handle different states for autocomplete of input box 
 	$("#user_guess").autocomplete({
 		source: keys,
 		minLength:2, 
 		select: function(event,ui){
-
 			var selected_guess = ui.item.value; 
 			submit(selected_guess); 
-
 			//clear and re-focus 
 			$(this).val("");
 			$(this).focus(); 
 			return false;
-		},
-		response: function(event,ui){
-			autocomplete_length = ui.content.length; 
 		}
-
 	});
 
+/*
+	//Code to handle the countdown timer 
+	window.onload = function(){
+		var oneMin = 60, display = document.querySelector("#timer"); 
+		Timer(oneMin,display);
+	};
+*/ 
+
 	function submit(guess){
+		completed +=1; 
 		correctness = checkGuess(guess); 
+		if (correctness){
+			got_correct+=1; 
+		}
+		updateScore(); 
 		addEntry(current_test_word,guess,current_answer,correctness); 
 		generateRandomWord(); 
 		updateTestWord(current_test_word); 
 	}
 
 	function generateRandomWord(){
-		var answer = answer_words[Math.floor(Math.random()*current_dict_length)];
+		var answer = keys[Math.floor(Math.random()*current_dict_length)];
 		var test_word =  current_dict[answer]; 
 		current_answer = answer; 
 		current_test_word = test_word; 
-		return [test_word,answer];
+	}
+
+	function updateScore(){
+		$("#score").html(got_correct); 
 	}
 
 	function checkGuess(guess){ 
@@ -96,13 +107,17 @@ $(function() {
 		var new_row = table.insertRow(2);
 		var existing_rows = 0; 
 
-		if ($(".history_row")[0]){
-			existing_rows = $(".history_row").length; 
+		if ($(".entry_row")[0]){
+			existing_rows = $(".entry_row").length; 
+		}
+
+		if (guess.length >guess_char_limit){
+			guess = guess.substring(0,guess_char_limit)+"...";
 		}
 
 		var new_id = "row"+existing_rows+1; 
 		$(new_row).attr("id",new_id); //#row1, #row2! 
-		$(new_row).addClass("history_row"); 
+		$(new_row).addClass("entry_row"); 
 		var col1 = document.createElement("td"); //test_word
 		var col2 = document.createElement("td"); // guess
 		var col3 = document.createElement("td"); // current_answer 
@@ -134,5 +149,23 @@ $(function() {
 		$(new_row).append(col3); 
 
 	}
+	// Code for Timer adapted from below 
+	// http://stackoverflow.com/questions/20618355/the-simplest-possible-javascript-countdown-timer
+/*
+	function Timer(duration,display){
+		var timer = duration, minutes, seconds; 
+		setInterval(function(){
+			minutes = parseInt(timer/60,10); 
+			seconds = parseInt(timer%60,10); 
+			minutes = minutes <10 ? "0" + minutes : minutes; 
+			seconds = seconds <10 ? "0" + seconds : seconds; 
+
+			display.textContent = minutes + ":" + seconds; 
+			if (--timer<0){
+				timer = 0,0,0;
+			}
+		},1000); 
+	}
+*/ 
 });
 
