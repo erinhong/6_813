@@ -15,6 +15,8 @@ $(function() {
 	var guess = document.getElementById("user_guess"); 
 	guess.focus(); 
 
+	var autocomplete_length = 0; 
+
 	//First generated word 
 	var next = generateRandomWord();
 	updateTestWord(current_test_word); 
@@ -32,8 +34,8 @@ $(function() {
 
 	$(guess).keyup(function(e){
 		if (e.keyCode ==13){
-			// if entered while autocomplete was closed
-			if (!!$($("#user_guess").autocomplete('widget')).is(":visible")){
+			// if entered while autocomplete was closed or length is 0. 
+			if (!!$($("#user_guess").autocomplete('widget')).is(":visible") || autocomplete_length ===0){
 				$("#user_guess").autocomplete("close"); 
 				submit(guess.value); 
 				guess.value = ""; 
@@ -55,7 +57,11 @@ $(function() {
 			$(this).val("");
 			$(this).focus(); 
 			return false;
+		},
+		response: function(event,ui){
+			autocomplete_length = ui.content.length; 
 		}
+
 	});
 
 	function submit(guess){

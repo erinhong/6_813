@@ -1,9 +1,9 @@
 html {
-    background-color: #eee;
 }
 body{
 	font-family:"Trebuchet MS";
 	font-size:15pt;
+	background-color: #f2f2f2;
 }
 
 #translator_title{
@@ -36,9 +36,9 @@ body{
 	color: gray;
 }
 #score_table{
-	background-color: #cce6ff;
 	height: 500px;
-	width: 500px;
+	width: 300px;
+	background-color: #ecd9c6;
 }
 
 #wrapper{
