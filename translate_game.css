@@ -25,3 +25,12 @@ body{
 .strikethrough{
 	text-decoration: line-through;
 }
+.blue{
+	color:blue;
+}
+.black{
+	color: black; 
+}
+.grey{
+	color: gray;
+}

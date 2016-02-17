@@ -74,17 +74,16 @@ $(function() {
 			col1.textContent = test_word; 
 
 			$(col2).addClass("blue");
-			$(col2).textContent = real_answer; 
+			col2.textContent = real_answer; 
 
-			//image 
-
-
+			col3.textContent = "✓"; 
 		}
 		$(new_row).append(col1); 
 		$(new_row).append(col2); 
 		$(new_row).append(col3); 
 
 	}
+
 //add entry 
 
 	document.getElementById("user_guess").focus();
@@ -93,6 +92,9 @@ $(function() {
 	var current_dict = dicts[lang_to][lang_from]; // keys: words in @lang_to, values: corresponding words in @lang_from 	
 	var current_dict_length = Object.values(current_dict).length;
 	var test_words = Object.values(current_dict); 
+	var keys = Object.keys(current_dict); 
+
+
 
 	//First generated word 
 	var current_test_word = generateRandomWord(test_words);
@@ -114,6 +116,19 @@ $(function() {
 		guess.value=""; 
 		guess.focus(); 
 	}); 
+
+	$("#user_guess").autocomplete({
+		source: keys,
+		minLength:2, 
+		select: function(event,ui){
+			var selected_guess = ui.item.value; 
+			
+			$(this).val("");
+			$(this).focus(); 
+			return false;
+		}
+	});
+
 
 
 });
