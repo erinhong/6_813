@@ -3,6 +3,7 @@ html {
 }
 body{
 	font-family:"Trebuchet MS";
+	font-size:15pt;
 }
 
 #translator_title{
@@ -13,7 +14,7 @@ body{
 	margin:10px 10px 10px 10px;
 }
 #translator td{
-	padding-right:10px;
+	padding-right:20px;
 }
 
 .correct, .correct_entry{
@@ -33,4 +34,20 @@ body{
 }
 .grey{
 	color: gray;
+}
+#score_table{
+	background-color: #cce6ff;
+	height: 500px;
+	width: 500px;
+}
+
+#wrapper{
+	overflow:hidden; 
+	width: 1500px;
+}
+#left{
+	float:left; 
+}
+#right{
+	float:left;
 }
