@@ -43,10 +43,10 @@ $(function() {
 	// User will receive notification and can continue playing game 
 	var counter_button = $("#reset_button");
 	$(counter_button).click(function(){
+		addResetNotification();
 		completed=0;
 		got_correct=0;
 		updateScore();
-		addResetNotification();
 		guess.focus(); 
 	});
 
@@ -126,16 +126,29 @@ $(function() {
 	//will alert the user that the counter has been reset 
 	function addResetNotification(){
 		var table = document.getElementById("table");
-		var new_row = table.insertRow(2); 
+
+		var score_row = table.insertRow(2); 
+		var col1 = document.createElement("td"); 
+		var col2 = document.createElement("td");
+		var col3 = document.createElement("td"); 
+		col1.textContent = "SCORE:";
+		col2.textContent = got_correct +" CORRECT"; 
+		col3.textContent = "OUT OF: "+completed;
+		$(score_row).append(col1); 
+		$(score_row).append(col2); 
+		$(score_row).append(col3);
+
+		var notification_row = table.insertRow(2); 
 		var col1 = document.createElement("td"); 
 		var col2 = document.createElement("td");
 		var col3 = document.createElement("td"); 
 		col1.textContent = "░░░░░░░░";
 		col2.textContent = "COUNTER RESET"; 
 		col3.textContent = "░░░░░░░░";
-		$(new_row).append(col1); 
-		$(new_row).append(col2); 
-		$(new_row).append(col3); 
+		$(notification_row).append(col1); 
+		$(notification_row).append(col2); 
+		$(notification_row).append(col3); 
+
 	}
 
 	//function to add new guess and test word to the past guesses 
