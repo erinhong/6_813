@@ -1,0 +1,59 @@
+html {
+}
+body{
+	font-family:"Trebuchet MS";
+	font-size:15pt;
+	background-color: #f2f2f2;
+}
+
+#translator_title{
+	margin: 10px 10px 10px 10px;
+}
+
+#translator{
+	margin:10px 10px 10px 10px;
+}
+#translator td{
+	padding-right:20px;
+}
+
+.correct, .correct_entry{
+	color:blue;
+}
+.red{
+	color:red; 
+}
+.strikethrough{
+	text-decoration: line-through;
+}
+.blue{
+	color:blue;
+}
+.black{
+	color: black; 
+}
+.grey{
+	color: gray;
+}
+#score_table{
+	text-align:center;
+	height: 300px;
+	width: 300px;
+	padding-top:2px;
+	background-color: #ecd9c6;
+}
+
+#wrapper{
+	overflow:hidden; 
+	width: 1500px;
+}
+#left{
+	float:left; 
+}
+#right{
+	float:left;
+}
+#timer{
+	text-align:center;
+	font-size: 40pt;
+}

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<!--
+   COLLABORATORS: discussed with Connie and Shelby
+   
+  -->
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Ready, Set, Translate !</title>
+    <link href="jquery/css/ui-lightness/jquery-ui-1.10.0.custom.css" rel="stylesheet" />
+    <link href="translate_game.css" rel="stylesheet" />
+  </head>
+  <body>
+
+<div id="wrapper">
+
+    <div id="left">
+
+      <div id="translator_title">
+        <h1 class="grey">Translate from <span id="lang_from" class="black"></span> to <span id="lang_to" class="black"></span></h1>
+      </div>
+
+      <div id ="translator">
+        <table id="table">
+
+          <tr>
+            <td class="grey">Spanish</td>
+            <td class="grey">English</td>
+            <td class="grey">Answer</td>
+          </tr>
+
+          <tr>
+            <td><span class="test_word"></span></td>
+            <td><input type="text" id="user_guess"/></td>
+            <td><button type="button" id="see_answer_button">See Answer</button></td>
+          </tr>
+
+          <tr id="static1">
+            <td class="blue">calabaza</td>
+            <td class="blue">pumpkin</td>
+            <td>✓</td>
+          </tr>
+
+          <tr id="static2">
+            <td class="red">postmodernidad</td>
+            <td class="red strikethrough">phone</td>
+            <td class="red">postmodernism</td>
+          </tr>
+
+        </table>
+      </div>
+  </div>
+
+  <div id="right">
+
+    <div id="score_table">
+      <h3>Number Correct:</h3>
+      <h3><span id="num_correct"></span></h3>
+      <h3>out of <span id="completed"></span> words</h3>
+      <button type="button" id="reset_button">Reset Counter</button>
+    </div>
+
+  </div>
+</div>
+
+    <script src="jquery/js/jquery-1.9.0.min.js"></script>
+    <script src="jquery/js/jquery-ui-1.10.0.custom.min.js"></script>
+    <script src="dicts.json"></script>
+    <script src="translate_game.js"></script>
+  </body>
+</html>
