@@ -47,6 +47,7 @@ $(function() {
 		completed=0;
 		got_correct=0;
 		updateScore();
+		guess.value="";
 		guess.focus(); 
 	});
 
@@ -128,26 +129,26 @@ $(function() {
 		var table = document.getElementById("table");
 
 		var score_row = table.insertRow(2); 
-		var col1 = document.createElement("td"); 
-		var col2 = document.createElement("td");
-		var col3 = document.createElement("td"); 
-		col1.textContent = "SCORE:";
-		col2.textContent = got_correct +" CORRECT"; 
-		col3.textContent = "OUT OF: "+completed;
-		$(score_row).append(col1); 
-		$(score_row).append(col2); 
-		$(score_row).append(col3);
+		var sc1 = document.createElement("td"); 
+		var sc2 = document.createElement("td");
+		var sc3 = document.createElement("td"); 
+		sc1.textContent = "SCORE:";
+		sc2.textContent = got_correct +" CORRECT"; 
+		sc3.textContent = "OUT OF: "+completed;
+		$(score_row).append(sc1); 
+		$(score_row).append(sc2); 
+		$(score_row).append(sc3);
 
 		var notification_row = table.insertRow(2); 
-		var col1 = document.createElement("td"); 
-		var col2 = document.createElement("td");
-		var col3 = document.createElement("td"); 
-		col1.textContent = "░░░░░░░░";
-		col2.textContent = "COUNTER RESET"; 
-		col3.textContent = "░░░░░░░░";
-		$(notification_row).append(col1); 
-		$(notification_row).append(col2); 
-		$(notification_row).append(col3); 
+		var nc1 = document.createElement("td"); 
+		var nc2 = document.createElement("td");
+		var nc3 = document.createElement("td"); 
+		nc1.textContent = "░░░░░░░░";
+		nc2.textContent = "COUNTER RESET"; 
+		nc3.textContent = "░░░░░░░░";
+		$(notification_row).append(nc1); 
+		$(notification_row).append(nc2); 
+		$(notification_row).append(nc3); 
 
 	}
 
