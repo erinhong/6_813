@@ -4,6 +4,9 @@ $(function() {
 	
 	var lang_to	= "English";
 	var lang_from = "Spanish";
+	$("#lang_to").html(lang_to);
+	$("#lang_from").html(lang_from);
+
 	var current_dict = dicts[lang_to][lang_from]; // keys: words in @lang_to, values: corresponding words in @lang_from 	
 	var current_dict_length = Object.keys(current_dict).length;
 	var keys = Object.keys(current_dict); 
@@ -12,6 +15,7 @@ $(function() {
 	var current_test_word = ""; 
 	var correctness = false; 
 	var guess_char_limit = 40;
+	var check = "✓"; 
 
 	var guess = document.getElementById("user_guess"); 
 	var autocomplete_length = 0; 
@@ -27,14 +31,28 @@ $(function() {
 	updateScore();
 
 	//Code for when user wants to see answer 
-	var button = $("#see_answer_button"); 
-	$(button).click(function(){
+	var answer_button = $("#see_answer_button"); 
+	$(answer_button).click(function(){
 		//submit, clear entry, refocus 
 		submit(guess.value); 
 		guess.value=""; 
 		guess.focus(); 
 	}); 
 
+	//Code for when user wants to reset counter
+	// User will receive notification and can continue playing game 
+	var counter_button = $("#reset_button");
+	$(counter_button).click(function(){
+		completed=0;
+		got_correct=0;
+		updateScore();
+		addResetNotification();
+		guess.focus(); 
+	});
+
+
+
+	//Code for when the user presses enter in the input box 
 	$(guess).keypress(function(e){
 		if (e.keyCode ==13){
 			// if entered while autocomplete was closed or length is 0. 
@@ -59,15 +77,13 @@ $(function() {
 		}
 	});
 
-/*
-	//Code to handle the countdown timer 
-	window.onload = function(){
-		var oneMin = 60, display = document.querySelector("#timer"); 
-		Timer(oneMin,display);
-	};
-*/ 
-
 	function submit(guess){
+		var static1 = document.getElementById("static1");
+		var static2 = document.getElementById("static2");
+		if (static1 && static2){
+			static1.parentElement.removeChild(static1);
+			static2.parentElement.removeChild(static2);
+		}
 		completed +=1; 
 		correctness = checkGuess(guess); 
 		if (correctness){
@@ -79,6 +95,7 @@ $(function() {
 		updateTestWord(current_test_word); 
 	}
 
+	//generates next test word 
 	function generateRandomWord(){
 		var answer = keys[Math.floor(Math.random()*current_dict_length)];
 		var test_word =  current_dict[answer]; 
@@ -86,10 +103,13 @@ $(function() {
 		current_test_word = test_word; 
 	}
 
+	//updates the score of correct words 
 	function updateScore(){
-		$("#score").html(got_correct); 
+		$("#num_correct").html(got_correct);
+		$("#completed").html(completed);
 	}
 
+	//will check the correctness of user's guess
 	function checkGuess(guess){ 
 		if (current_answer == guess){
 				return true; 
@@ -97,11 +117,28 @@ $(function() {
 	return false; 
 	}
 
+	//function to update the test word in the view
 	function updateTestWord(test_word){
 		var text_box = $(".test_word"); 
 		$(text_box).html(test_word); 
 	}
 
+	//will alert the user that the counter has been reset 
+	function addResetNotification(){
+		var table = document.getElementById("table");
+		var new_row = table.insertRow(2); 
+		var col1 = document.createElement("td"); 
+		var col2 = document.createElement("td");
+		var col3 = document.createElement("td"); 
+		col1.textContent = "░░░░░░░░";
+		col2.textContent = "COUNTER RESET"; 
+		col3.textContent = "░░░░░░░░";
+		$(new_row).append(col1); 
+		$(new_row).append(col2); 
+		$(new_row).append(col3); 
+	}
+
+	//function to add new guess and test word to the past guesses 
 	function addEntry(test_word,guess,current_answer,correctness){
 		var table = document.getElementById("table");
 		var new_row = table.insertRow(2);
@@ -142,30 +179,13 @@ $(function() {
 			$(col2).addClass("blue");
 			col2.textContent = current_answer; 
 
-			col3.textContent = "✓"; 
+			col3.textContent = check; 
 		}
 		$(new_row).append(col1); 
 		$(new_row).append(col2); 
 		$(new_row).append(col3); 
 
 	}
-	// Code for Timer adapted from below 
-	// http://stackoverflow.com/questions/20618355/the-simplest-possible-javascript-countdown-timer
-/*
-	function Timer(duration,display){
-		var timer = duration, minutes, seconds; 
-		setInterval(function(){
-			minutes = parseInt(timer/60,10); 
-			seconds = parseInt(timer%60,10); 
-			minutes = minutes <10 ? "0" + minutes : minutes; 
-			seconds = seconds <10 ? "0" + seconds : seconds; 
 
-			display.textContent = minutes + ":" + seconds; 
-			if (--timer<0){
-				timer = 0,0,0;
-			}
-		},1000); 
-	}
-*/ 
 });
 
