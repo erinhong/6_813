@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+
+<!--
+  COLLABORATORS:
+  
+-->
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>Checkerboard</title>
+
+<!-- Load style sheets -->
+<link rel="stylesheet" href="mainLayout.css" />
+</head>
+
+<body>
+
+<table id="mainTable">
+    <tr>
+        <td id="navigation">
+          <table>
+			  <tr><td>		<!-- Your code here -->			</td></tr>
+              <tr><td><input id="btnNewGame" type="button" name="new" value="New Game"/></td></tr>
+              <tr><td><input id="btnAutoMove" type="button" name="new" value="Auto Move"/></td></tr>
+
+            </table>
+        </td>
+
+        <td id="content">
+            <table id="checkerboard" border="0" cellpadding="0" cellspacing="0">
+            </table>
+        </td>
+    </tr>
+
+</table>
+
+
+<!-- Load any supplemental Javascript libraries here -->
+<script type="text/javascript" src="external_js/jquery-1.9.0.min.js"></script>
+<script type="text/javascript" src="checker.js"></script>
+<script type="text/javascript" src="boardEvent.js"></script>
+<script type="text/javascript" src="board.js"></script>
+<script type="text/javascript" src="rules.js"></script>
+
+<script type="text/javascript">
+//This script extracts parameters from the URL
+//from jquery-howto.blogspot.com
+    $.extend({
+        getUrlVars : function() {
+            var vars = [], hash;
+            var hashes = window.location.href.slice(
+                    window.location.href.indexOf('?') + 1).split('&');
+            for ( var i = 0; i < hashes.length; i++) {
+                hash = hashes[i].split('=');
+                vars.push(hash[0]);
+                vars[hash[0]] = hash[1];
+            }
+            return vars;
+        },
+        getUrlVar : function(name) {
+            return $.getUrlVars()[name];
+        }
+    });
+
+    var DEFAULT_BOARD_SIZE = 8;
+
+    //data model
+    var board;
+    var rules;
+    var whoseTurn = "black";    
+
+    var directionOf = function(color) {
+      if (color == "black") {
+        return -1;
+      }
+      return 1;
+    }
+
+    // Fill in this function to toggle the display for whose turn
+    // The color parameter should be either "black" or "red"
+    var toggleTurn = function(color) {
+    // Your code here
+    }
+
+
+
+    // This allows the Javascript code inside this block to only run when the page
+    // has finished loading in the browser.
+    $(document).ready(function() {
+
+        if ($.getUrlVar('size') && $.getUrlVar('size') >= 6) {
+            board = new Board($.getUrlVar('size'));
+            draw_checkerboard($.getUrlVar('size')); 
+        } else {
+            board = new Board(DEFAULT_BOARD_SIZE);
+            draw_checkerboard(DEFAULT_BOARD_SIZE); 
+        }
+
+    function draw_checkerboard(n){
+        var colors = ["white_square","grey_square"];
+        var checkerboard = document.getElementById("checkerboard"); 
+        var square_size = 400/n;
+        for (i=0; i<n; i++){
+            var new_row = checkerboard.insertRow(0); // eventually add to length of 
+            color_id = i%2;
+            for (j=0; j<n; j++){
+                var new_square = document.createElement("td"); 
+                $(new_square).addClass(colors[color_id%2]); 
+                new_square.style.width = square_size.toString() + "px";
+                new_square.style.height = square_size.toString() + "px";
+                $(new_row).append(new_square);
+                color_id += 1;
+            }
+        }
+    }
+
+    rules = new Rules(board);
+
+
+        // Your code here
+
+        board.addEventListener('add',function (e) {
+            // Your code here
+        },true);
+
+        board.addEventListener('move',function (e) {
+            // Your code here
+        },true);
+
+        board.addEventListener('remove', function(e) {
+            // Your code here
+        }, true);
+
+        board.addEventListener('promote',function (e) {
+            // Your code here
+        },true);
+
+        
+        $("#btnNewGame").click(function(evt) {
+            board.prepareNewGame();
+        });
+
+        $("#btnAutoMove").click(function(evt) {
+          var playerColor = whoseTurn;
+          var playerDirection = directionOf(playerColor);
+          var result = rules.makeRandomMove(playerColor, playerDirection);
+          if (result != null) {
+            toggleTurn();
+          }
+        });
+
+        board.prepareNewGame();
+
+    });
+</script>
+
+</body>
+
+</html>
