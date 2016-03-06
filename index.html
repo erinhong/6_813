@@ -20,7 +20,7 @@
     <tr>
         <td id="navigation">
           <table>
-			  <tr><td>		<!-- Your code here -->			</td></tr>
+			  <tr><td id="flag"></td></tr>
               <tr><td><input id="btnNewGame" type="button" name="new" value="New Game"/></td></tr>
               <tr><td><input id="btnAutoMove" type="button" name="new" value="Auto Move"/></td></tr>
 
@@ -81,7 +81,14 @@
     // Fill in this function to toggle the display for whose turn
     // The color parameter should be either "black" or "red"
     var toggleTurn = function(color) {
-    // Your code here
+        if (color){
+            if (color=="black"){
+                whoseTurn = "red";
+                return whoseTurn;
+            }
+            whoseTurn = "black"; 
+                return whoseTurn;
+        }
     }
 
 
@@ -100,7 +107,20 @@
             size = DEFAULT_BOARD_SIZE; 
         }
 
+    function update_flag(){
+        var flag = document.getElementById("flag");
+        if (whoseTurn == "black"){
+            flag.innerHTML="Black's Turn";
+            $(flag).css({"background-color":"black","height":"20px","color":"white"});
+        }
+        else{
+            flag.innerHTML="Red's Turn"; 
+            $(flag).css({"background-color":"red","height":"20px","color":"white"});    
+        }
+    }
+
     function draw_checkerboard(n){
+        update_flag();
         var colors = ["grey_square","white_square"];
         var checkerboard = document.getElementById("checkerboard"); 
         var square_size = 400/n;
@@ -118,9 +138,11 @@
         }
     }
 
-    function draw_new_game(){
+    function draw_new_board(){
+        update_flag();
+        $('.piece').remove(); 
         var squaresize = 400/size;
-        window.alert("hello");
+        var piecesize = squaresize*.9; 
         var content = document.getElementById("content");
         var checkerboard = document.getElementById("checkerboard"); 
         for (row=0; row<size; row++){
@@ -137,9 +159,61 @@
                     }
                     $(piece).addClass("piece"); 
                     piece.setAttribute('src',color_source);
-                    $(piece).css({"top":row*squaresize,"left":col*squaresize});
+                    piece.setAttribute('width',squaresize); 
+                    piece.setAttribute('height',squaresize); 
+                    $(piece).css({"top":row*squaresize+1,"left":col*squaresize+1}); 
                     content.insertBefore(piece,checkerboard); 
                 }
             }
         }
     }
+
+
+
+
+
+    rules = new Rules(board);
+
+
+        // Your code here
+
+        board.addEventListener('add',function (e) {
+            // Your code here
+        },true);
+
+        board.addEventListener('move',function (e) {
+            // Your code here
+        },true);
+
+        board.addEventListener('remove', function(e) {
+            // Your code here
+        }, true);
+
+        board.addEventListener('promote',function (e) {
+            // Your code here
+        },true);
+
+        
+        $("#btnNewGame").click(function(evt) {
+            board.prepareNewGame();
+            draw_new_board(); 
+        });
+
+        $("#btnAutoMove").click(function(evt) {
+          var playerColor = whoseTurn;
+          var playerDirection = directionOf(playerColor);
+          var result = rules.makeRandomMove(playerColor, playerDirection);
+          if (result != null) {
+            toggleTurn(playerColor);
+          }
+          draw_new_board();
+        });
+
+        board.prepareNewGame();
+
+    });
+</script>
+
+</body>
+
+</html>
