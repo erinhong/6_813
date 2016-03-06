@@ -30,9 +30,9 @@
         <td id="content">
             <table id="checkerboard" border="0" cellpadding="0" cellspacing="0">
             </table>
+
         </td>
     </tr>
-
 </table>
 
 
@@ -63,6 +63,7 @@
         }
     });
 
+    var size = 8; 
     var DEFAULT_BOARD_SIZE = 8;
 
     //data model
@@ -92,13 +93,15 @@
         if ($.getUrlVar('size') && $.getUrlVar('size') >= 6) {
             board = new Board($.getUrlVar('size'));
             draw_checkerboard($.getUrlVar('size')); 
+            size = $.getUrlVar('size'); 
         } else {
             board = new Board(DEFAULT_BOARD_SIZE);
             draw_checkerboard(DEFAULT_BOARD_SIZE); 
+            size = DEFAULT_BOARD_SIZE; 
         }
 
     function draw_checkerboard(n){
-        var colors = ["white_square","grey_square"];
+        var colors = ["grey_square","white_square"];
         var checkerboard = document.getElementById("checkerboard"); 
         var square_size = 400/n;
         for (i=0; i<n; i++){
@@ -115,46 +118,28 @@
         }
     }
 
-    rules = new Rules(board);
-
-
-        // Your code here
-
-        board.addEventListener('add',function (e) {
-            // Your code here
-        },true);
-
-        board.addEventListener('move',function (e) {
-            // Your code here
-        },true);
-
-        board.addEventListener('remove', function(e) {
-            // Your code here
-        }, true);
-
-        board.addEventListener('promote',function (e) {
-            // Your code here
-        },true);
-
-        
-        $("#btnNewGame").click(function(evt) {
-            board.prepareNewGame();
-        });
-
-        $("#btnAutoMove").click(function(evt) {
-          var playerColor = whoseTurn;
-          var playerDirection = directionOf(playerColor);
-          var result = rules.makeRandomMove(playerColor, playerDirection);
-          if (result != null) {
-            toggleTurn();
-          }
-        });
-
-        board.prepareNewGame();
-
-    });
-</script>
-
-</body>
-
-</html>
+    function draw_new_game(){
+        var squaresize = 400/size;
+        window.alert("hello");
+        var content = document.getElementById("content");
+        var checkerboard = document.getElementById("checkerboard"); 
+        for (row=0; row<size; row++){
+            for (col=0; col<size; col++){
+                var occupied = board.square[row][col];
+                if (occupied){
+                    var color = occupied.color;
+                    var piece = document.createElement("img"); 
+                    var color_source = ""; 
+                    if (color == "red"){
+                        color_source = 'graphics/red-piece.png'; 
+                    }else{ 
+                        color_source = 'graphics/black-piece.png'; 
+                    }
+                    $(piece).addClass("piece"); 
+                    piece.setAttribute('src',color_source);
+                    $(piece).css({"top":row*squaresize,"left":col*squaresize});
+                    content.insertBefore(piece,checkerboard); 
+                }
+            }
+        }
+    }
