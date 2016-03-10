@@ -29,7 +29,7 @@
 
         <td id="content">
             <canvas id="arrow_canvas" width="400" height="400">Get a new browswer!</canvas>
-            <table id="checkerboard" width="400" height="400" border="0" cellpadding="0" cellspacing="0">
+            <table id="checkerboard" width="398" height="398" border="0" cellpadding="0" cellspacing="0">
             </table>
 
         </td>
@@ -64,7 +64,7 @@
         }
     });
 
-    var board_pixel_dim = 400; 
+    var board_pixel_dim = 398.0; 
     var size = 8; 
     var DEFAULT_BOARD_SIZE = 8;
     var squaresize = board_pixel_dim/size;
@@ -137,7 +137,8 @@
         var colors = ["grey_square","white_square"];
         var checkerboard = document.getElementById("checkerboard");   
         for (i=0; i<n; i++){
-            var new_row = checkerboard.insertRow(0); // eventually add to length of 
+            var new_row = checkerboard.insertRow(0);
+            new_row.style.height = squaresize.toString() + "px"; //TESTER   
             color_id = i%2;
             for (j=0; j<n; j++){
                 var new_square = document.createElement("td"); 
