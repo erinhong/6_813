@@ -1,5 +1,5 @@
 #navigation{
-	width:140px
+	width:140px;
 }
 
 #navigation table{
@@ -11,9 +11,10 @@
 }
 
 #content{
+	position: relative;
 	background-color:gray;
 	max-width: 400px;
-	max-height:400px;
+	max-height: 400px;
 }
 .grey_square{
 	width:50px;
@@ -21,7 +22,29 @@
 	background-color:#a6a6a6;
 }
 .white_square{
-	width:50px;
-	height:50px;
+	/*width:50px;
+	height:50px;*/
 	background-color:white;
+}
+.piece{
+	position:absolute;
+}
+#flag{
+	text-align:center;
+}
+#arrow_canvas{
+	position:absolute;
+	z-index:1;
+}
+#checkerboard{
+	z-index:0;
+}
+
+#checkerboard td{
+	display:inline-block;
+	vertical-align:top;
+}
+#checkerboard tr{
+	display:block;
+	vertical-align:top;
 }
