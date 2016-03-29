@@ -132,11 +132,9 @@
 
     $("#content").mousedown(function(e){
         selected_color = e.target.className.split(" ")[0];
-        console.log(selected_color);
         if (selected_color == whoseTurn){
             target = e.target;
             e.target.style.zIndex = zIndex; 
-            console.log(target.style.zIndex);
             
             startDrag(e); 
             return false;
@@ -182,11 +180,8 @@
         else{
             console.log("should be moved back");
             board.moveTo(square_to_move,initialRow,initialCol);
-        }
-
-
-
-        
+            console.log("moved square back");
+        } 
 
     }
 
@@ -313,11 +308,11 @@
                         }
                     }
 
-                    $(piece).addClass("piece"); 
+                    $(piece).addClass("piece");
+                    piece.setAttribute('z-index',"1"); /*TESTER TESTER TESTER*/  
                     piece.setAttribute('src',color_source);
                     piece.setAttribute('width',squaresize); 
                     piece.setAttribute('height',squaresize); 
-                    piece.setAttribute('draggable',true);
                     $(piece).css({"top":row*squaresize+1,"left":col*squaresize+1}); //centers piece on square 
                     content.insertBefore(piece,checkerboard); 
                 }
@@ -333,7 +328,9 @@
         canvas.setAttribute("id","arrow_canvas"); 
         canvas.setAttribute("width","400"); 
         canvas.setAttribute("height","400");
-        content.insertBefore(canvas,checkerboard);
+        canvas.setAttribute("z-index","2"); /*TESTER TESTER TESTER*/
+        
+        //content.insertBefore(canvas,checkerboard);
         var ctx = canvas.getContext('2d'); 
         ctx.beginPath(); 
         var halfsize = squaresize/2; 
@@ -366,6 +363,9 @@
         ctx.closePath(); 
         ctx.fillStyle="yellow";
         ctx.fill(); 
+        $(content).prepend(canvas);
+
+        
          
     }
 
@@ -379,10 +379,18 @@
 
         //dispatched when checker is moved from current square to another square 
         board.addEventListener('move',function (e) { 
-            console.log("event listener called");
-            console.log(e.details);
-
-        },true);
+            $("#arrow_canvas").remove();
+            to_col = e.details.toCol; 
+            to_row = e.details.toRow;
+            from_col = e.details.fromCol; 
+            from_row = e.details.fromRow;  
+            draw_pieces(); 
+            if (e){
+                toggleTurn(whoseTurn);
+                update_flag(); 
+            }
+            highlight_move(); 
+            },true);
 
 
         //dispatched when checker is removed from board 
@@ -400,23 +408,13 @@
         });
 
         $("#btnAutoMove").click(function(evt) {
-            console.log("autmove called now");
           var playerColor = whoseTurn;
           var playerDirection = directionOf(playerColor);
-          console.log("before event listener?");
           var result = rules.makeRandomMove(playerColor, playerDirection);
-          
-          to_col = result.to_col; 
-          to_row = result.to_row;
-          from_col = result.from_col; 
-          from_row = result.from_row;  
-          $("#arrow_canvas").remove();
-          highlight_move();  
-          if (result != null) {
-            toggleTurn(playerColor);
-          }
-          update_flag();
-          draw_pieces(); 
+          /*if (result != null) {
+            //toggleTurn(playerColor);
+            //update_flag();
+          }*/ 
         });
 
         board.prepareNewGame();
