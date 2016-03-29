@@ -85,7 +85,8 @@
     var offsetX = 0; 
     var offsetY = 0;
     var zIndex = 2; 
-    var target = null; 
+    var target = null;
+    var move_was_valid = true;  
 
     var initialLeft = 0; 
     var initialTop = 0;
@@ -147,7 +148,6 @@
         if (target) {
             dragDiv(e);
         }
-        
     })
 
     $(document).mouseup(function (e) {
@@ -158,6 +158,7 @@
             // if let go in invalid, keep it in original place 
             // if valid, move to new place 
             //edit mouseup!!! 
+            // RESET zINDEX? 
 
             //get row and column 
             checkMove(); 
@@ -173,14 +174,16 @@
         //if valid, make move 
         //FIX OFF BOARD ERROR
         var square_to_move = board.square[initialRow][initialCol]; 
-        if (board.isEmptyLocation(destRow,destCol)){
+        if (board.isEmptyLocation(destRow,destCol) && destRow < size && destCol < size){
             board.moveTo(square_to_move,destRow,destCol);
-            console.log("should be moved to new spot");
+            //console.log("should be moved to new spot");
         }
         else{
-            console.log("should be moved back");
+            //console.log("should be moved back");
+            move_was_valid = false; 
+            board.remove(square_to_move);
             board.moveTo(square_to_move,initialRow,initialCol);
-            console.log("moved square back");
+            //console.log("moved square back");
         } 
 
     }
@@ -292,10 +295,12 @@
 
                     if (king){
                         if (color == "red"){
-                            color_source = 'graphics/red-king.png'; 
+                            color_source = 'graphics/red-king.png';
+                            $(piece).addClass("red");  
                         }
                         else{
                             color_source = 'graphics/black-king.png'; 
+                            $(piece).addClass("black");
                         }
                     }
                     else{ //if piece is not king 
@@ -309,7 +314,7 @@
                     }
 
                     $(piece).addClass("piece");
-                    piece.setAttribute('z-index',"1"); /*TESTER TESTER TESTER*/  
+                    //piece.setAttribute('z-index',"1"); /*TESTER TESTER TESTER*/  
                     piece.setAttribute('src',color_source);
                     piece.setAttribute('width',squaresize); 
                     piece.setAttribute('height',squaresize); 
@@ -328,7 +333,7 @@
         canvas.setAttribute("id","arrow_canvas"); 
         canvas.setAttribute("width","400"); 
         canvas.setAttribute("height","400");
-        canvas.setAttribute("z-index","2"); /*TESTER TESTER TESTER*/
+        //canvas.setAttribute("z-index","2"); /*TESTER TESTER TESTER*/
         
         //content.insertBefore(canvas,checkerboard);
         var ctx = canvas.getContext('2d'); 
@@ -363,9 +368,7 @@
         ctx.closePath(); 
         ctx.fillStyle="yellow";
         ctx.fill(); 
-        $(content).prepend(canvas);
-
-        
+        $(content).prepend(canvas);     
          
     }
 
@@ -379,6 +382,7 @@
 
         //dispatched when checker is moved from current square to another square 
         board.addEventListener('move',function (e) { 
+            console.log("Move Add Event Listener Called");
             $("#arrow_canvas").remove();
             to_col = e.details.toCol; 
             to_row = e.details.toRow;
@@ -389,7 +393,10 @@
                 toggleTurn(whoseTurn);
                 update_flag(); 
             }
-            highlight_move(); 
+            if (move_was_valid){
+                highlight_move(); 
+            }
+            move_was_valid = true; 
             },true);
 
 
