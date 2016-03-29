@@ -2,7 +2,6 @@
 
 <!--
   COLLABORATORS: Connie Siu
-  
 -->
 <html>
 
@@ -64,10 +63,11 @@
         }
     });
 
-    var board_pixel_dim = 398.0; 
+    var board_pixel_dim = 398.0;  //removed two pixels each side to accomodate for 1px padding
     var size = 8; 
-    var DEFAULT_BOARD_SIZE = 8;
     var squaresize = board_pixel_dim/size;
+    var DEFAULT_BOARD_SIZE = 8;
+    
 
     //variables that update most up to date movements 
     var from_col = 0; 
@@ -78,7 +78,21 @@
     //data model
     var board;
     var rules;
-    var whoseTurn = "black";    
+    var whoseTurn = "black"; 
+
+    var selected_color = "black"; 
+    var drag = false; 
+    var offsetX = 0; 
+    var offsetY = 0;
+    var zIndex = 2; 
+    var target = null; 
+
+    var initialLeft = 0; 
+    var initialTop = 0;
+    var initialRow = 0; 
+    var initialCol = 0; 
+    var destRow = 0; 
+    var destCol = 0;   
 
     var directionOf = function(color) {
       if (color == "black") {
@@ -116,8 +130,120 @@
             draw_checkerboard(DEFAULT_BOARD_SIZE); 
         }
 
-    rules = new Rules(board);
+    $("#content").mousedown(function(e){
+        selected_color = e.target.className.split(" ")[0];
+        console.log(selected_color);
+        if (selected_color == whoseTurn){
+            target = e.target;
+            e.target.style.zIndex = zIndex; 
+            console.log(target.style.zIndex);
+            
+            startDrag(e); 
+            return false;
 
+        }
+
+    })
+
+    $(document).mousemove(function(e){
+        if (target) {
+            dragDiv(e);
+        }
+        
+    })
+
+    $(document).mouseup(function (e) {
+        selected_color = e.target.className.split(" ")[0]; 
+        if (selected_color == whoseTurn){
+            stopDrag(); 
+            // check whether the new spot is valid 
+            // if let go in invalid, keep it in original place 
+            // if valid, move to new place 
+            //edit mouseup!!! 
+
+            //get row and column 
+            checkMove(); 
+            return false;
+        }
+    })
+
+
+
+    function checkMove(){
+        //is new space valid?
+        //moveTo = function(checker, toRow, toCol)
+        //if valid, make move 
+        //FIX OFF BOARD ERROR
+        var square_to_move = board.square[initialRow][initialCol]; 
+        if (board.isEmptyLocation(destRow,destCol)){
+            board.moveTo(square_to_move,destRow,destCol);
+            console.log("should be moved to new spot");
+        }
+        else{
+            console.log("should be moved back");
+            board.moveTo(square_to_move,initialRow,initialCol);
+        }
+
+
+
+        
+
+    }
+
+    function startDrag(e) {
+        initialLeft = parseInt(target.style.left,10); 
+        initialTop = parseInt(target.style.top,10);
+
+        initialCol = Math.round(initialLeft/squaresize); 
+        initialRow = Math.round(initialTop/squaresize); 
+
+        offsetX = e.clientX;
+        offsetY = e.clientY;
+        
+        coordX = parseInt(target.style.left);
+        coordY = parseInt(target.style.top);
+        drag = true;  
+        return false;
+            
+        }
+
+    function dragDiv(e) {
+        target.style.left= coordX+e.clientX- offsetX+'px';
+        target.style.top= coordY+e.clientY- offsetY+'px';
+        return false;
+    }
+
+    function stopDrag() {
+        destRow = Math.round(parseInt(target.style.top,10)/ squaresize); 
+        destCol = Math.round(parseInt(target.style.left,10)/squaresize); 
+        drag=false;
+        target = null;
+    } 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    rules = new Rules(board);
 
     //this updates the turn flag 
     function update_flag(){
@@ -135,11 +261,13 @@
     // this function is in charge of drawing the checkerboard squares
     function draw_checkerboard(n){
         var colors = ["grey_square","white_square"];
-        var checkerboard = document.getElementById("checkerboard");   
+        var checkerboard = document.getElementById("checkerboard");  
+
         for (i=0; i<n; i++){
             var new_row = checkerboard.insertRow(0);
-            new_row.style.height = squaresize.toString() + "px"; //TESTER   
-            color_id = i%2;
+            new_row.style.height = squaresize.toString() + "px";   
+            color_id = i%2; //toggles color of square 
+
             for (j=0; j<n; j++){
                 var new_square = document.createElement("td"); 
                 $(new_square).addClass(colors[color_id%2]); 
@@ -178,8 +306,10 @@
                     else{ //if piece is not king 
                         if (color == "red"){
                             color_source = 'graphics/red-piece.png'; 
+                            $(piece).addClass("red");
                         }else{ 
                             color_source = 'graphics/black-piece.png'; 
+                            $(piece).addClass("black");
                         }
                     }
 
@@ -187,6 +317,7 @@
                     piece.setAttribute('src',color_source);
                     piece.setAttribute('width',squaresize); 
                     piece.setAttribute('height',squaresize); 
+                    piece.setAttribute('draggable',true);
                     $(piece).css({"top":row*squaresize+1,"left":col*squaresize+1}); //centers piece on square 
                     content.insertBefore(piece,checkerboard); 
                 }
@@ -235,7 +366,7 @@
         ctx.closePath(); 
         ctx.fillStyle="yellow";
         ctx.fill(); 
- 
+         
     }
 
         //dispatched when new checker is added to board, maybe generating new board from start and from old board 
@@ -247,18 +378,20 @@
         },true);
 
         //dispatched when checker is moved from current square to another square 
-        board.addEventListener('move',function (e) { //e returns e.details.to_col.. etc 
-            // Your code here
+        board.addEventListener('move',function (e) { 
+            console.log("event listener called");
+            console.log(e.details);
+
         },true);
+
 
         //dispatched when checker is removed from board 
         board.addEventListener('remove', function(e) {
-            // Your code here
         }, true);
 
         //dispatched when piece becomes a king piece! 
-        board.addEventListener('promote',function (e) { //should probably redraw the board...? 
-            // Your code here
+        board.addEventListener('promote',function (e) { 
+            draw_pieces();
         },true);
 
         
@@ -267,20 +400,23 @@
         });
 
         $("#btnAutoMove").click(function(evt) {
+            console.log("autmove called now");
           var playerColor = whoseTurn;
           var playerDirection = directionOf(playerColor);
+          console.log("before event listener?");
           var result = rules.makeRandomMove(playerColor, playerDirection);
+          
           to_col = result.to_col; 
           to_row = result.to_row;
           from_col = result.from_col; 
-          from_row = result.from_row; 
+          from_row = result.from_row;  
           $("#arrow_canvas").remove();
-          highlight_move();
+          highlight_move();  
           if (result != null) {
             toggleTurn(playerColor);
-          } 
+          }
           update_flag();
-          draw_pieces();
+          draw_pieces(); 
         });
 
         board.prepareNewGame();
