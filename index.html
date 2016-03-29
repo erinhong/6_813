@@ -78,7 +78,9 @@
     //data model
     var board;
     var rules;
-    var whoseTurn = "black"; 
+    var whoseTurn = "black";
+    //var turnDirection = null;  
+    //var playerdirection = null;  
 
     var selected_color = "black"; 
     var drag = false; 
@@ -93,7 +95,10 @@
     var initialRow = 0; 
     var initialCol = 0; 
     var destRow = 0; 
-    var destCol = 0;   
+    var destCol = 0; 
+
+    //turnDirection = directionOf(whoseTurn)
+    //playerDirection = directionOf(checker.color)  
 
     var directionOf = function(color) {
       if (color == "black") {
@@ -136,7 +141,6 @@
         if (selected_color == whoseTurn){
             target = e.target;
             e.target.style.zIndex = zIndex; 
-            
             startDrag(e); 
             return false;
 
@@ -154,26 +158,26 @@
         selected_color = e.target.className.split(" ")[0]; 
         if (selected_color == whoseTurn){
             stopDrag(); 
-            // check whether the new spot is valid 
-            // if let go in invalid, keep it in original place 
-            // if valid, move to new place 
             //edit mouseup!!! 
             // RESET zINDEX? 
-
-            //get row and column 
-            checkMove(); 
+            checkMove();
+            //draw_pieces(); /*TESTER TESTER TESTER*/  
             return false;
         }
     })
 
-
-
     function checkMove(){
-        //is new space valid?
-        //moveTo = function(checker, toRow, toCol)
-        //if valid, make move 
-        //FIX OFF BOARD ERROR
-        var square_to_move = board.square[initialRow][initialCol]; 
+        var square_to_move = board.square[initialRow][initialCol];
+        var move = rules.makeMove(square_to_move,directionOf(whoseTurn),directionOf(square_to_move.color),destRow,destCol); 
+
+        if (!move){
+            console.log("NOT VALID");
+            move_was_valid = false; 
+            board.remove(square_to_move); 
+            board.moveTo(square_to_move,initialRow,initialCol); 
+        }
+    }
+    /*
         if (board.isEmptyLocation(destRow,destCol) && destRow < size && destCol < size){
             board.moveTo(square_to_move,destRow,destCol);
             //console.log("should be moved to new spot");
@@ -185,8 +189,7 @@
             board.moveTo(square_to_move,initialRow,initialCol);
             //console.log("moved square back");
         } 
-
-    }
+*/ 
 
     function startDrag(e) {
         initialLeft = parseInt(target.style.left,10); 
@@ -383,25 +386,30 @@
         //dispatched when checker is moved from current square to another square 
         board.addEventListener('move',function (e) { 
             console.log("Move Add Event Listener Called");
-            $("#arrow_canvas").remove();
+            //console.log("Move: Object: "+e.details);
+            
             to_col = e.details.toCol; 
             to_row = e.details.toRow;
             from_col = e.details.fromCol; 
             from_row = e.details.fromRow;  
-            draw_pieces(); 
-            if (e){
+            /*if (e){
+                
+            }*/ 
+            if (move_was_valid){
+                $("#arrow_canvas").remove();
                 toggleTurn(whoseTurn);
                 update_flag(); 
-            }
-            if (move_was_valid){
                 highlight_move(); 
             }
-            move_was_valid = true; 
+            move_was_valid = true;
+            console.log("drawing pieces now.."); 
+            draw_pieces(); 
             },true);
 
 
         //dispatched when checker is removed from board 
         board.addEventListener('remove', function(e) {
+            draw_pieces();
         }, true);
 
         //dispatched when piece becomes a king piece! 
