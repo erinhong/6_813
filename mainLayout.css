@@ -33,10 +33,12 @@
 	text-align:center;
 }
 #arrow_canvas{
+	pointer-events:none;
 	position:absolute;
 	z-index:1;
 }
 #checkerboard{
+	pointer-events:none; 
 	z-index:0;
 }
 
