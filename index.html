@@ -82,6 +82,7 @@
     var rules;
     var whoseTurn = "black";
 
+    //variables for dragging pieces around board 
     var selected_color = "black"; 
     var drag = false; 
     var offsetX = 0; 
@@ -90,6 +91,7 @@
     var target = null;
     var move_was_valid = true;  
 
+    //variables for redo/undo parameters 
     var initialLeft = 0; 
     var initialTop = 0;
     var initialRow = 0; 
@@ -97,12 +99,12 @@
     var destRow = 0; 
     var destCol = 0;
 
+    //variables to manage queues for redo/undo functionality
     var cache = [];
     var redo_cache = []; 
 
     //turnDirection = directionOf(whoseTurn)
     //playerDirection = directionOf(checker.color)  
-
     var directionOf = function(color) {
       if (color == "black") {
         return -1;
@@ -123,6 +125,7 @@
         }
     }
     
+    //function used to either disable or enable undo button 
     var disable_undo = function(){
         if (cache.length<1){
             $("#btnUndo").prop("disabled",true);
@@ -131,6 +134,7 @@
         }
     }
 
+    //function to either disable or enable redo button 
     var disable_redo = function(){
         if (redo_cache.length<1){
             $("#btnRedo").prop("disabled",true); 
@@ -162,8 +166,7 @@
             draw_checkerboard(DEFAULT_BOARD_SIZE); 
         }
 
-    
-
+    //initiate drag of elements if appropriate 
     $("#content").mousedown(function(e){
         selected_color = e.target.className.split(" ")[0];
         if (selected_color == whoseTurn){
@@ -171,28 +174,28 @@
             e.target.style.zIndex = zIndex; 
             startDrag(e); 
             return false;
-
         }
-
     })
 
+    //begin dragging element on board
     $(document).mousemove(function(e){
         if (target) {
             dragDiv(e);
         }
     })
 
+    //drop element if appropriate 
     $(document).mouseup(function (e) {
         selected_color = e.target.className.split(" ")[0]; 
         if (selected_color == whoseTurn){
             stopDrag(); 
             // RESET zINDEX? 
             checkMove();
-            //draw_pieces(); /*TESTER TESTER TESTER*/  
             return false;
         }
     })
 
+    //function to check the validity of desired drag move 
     function checkMove(){
         var square_to_move = board.square[initialRow][initialCol];
         var move = rules.makeMove(square_to_move,directionOf(whoseTurn),directionOf(square_to_move.color),destRow,destCol);
@@ -212,6 +215,8 @@
     }
 
 
+    //http://jsfiddle.net/YNMEX/1/ used for math of drag 
+    //function to iniitate drag and save initial parameters of chosen piece
     function startDrag(e) {
         initialLeft = parseInt(target.style.left,10); 
         initialTop = parseInt(target.style.top,10);
@@ -228,42 +233,20 @@
         return false;
             
         }
-
+    //drag element given current mouse location 
     function dragDiv(e) {
-        target.style.left= coordX+e.clientX- offsetX+'px';
-        target.style.top= coordY+e.clientY- offsetY+'px';
+        target.style.left = coordX+e.clientX- offsetX+'px';
+        target.style.top = coordY+e.clientY- offsetY+'px';
         return false;
     }
 
+    //end drag and reset target 
     function stopDrag() {
         destRow = Math.round(parseInt(target.style.top,10)/ squaresize); 
         destCol = Math.round(parseInt(target.style.left,10)/squaresize); 
         drag=false;
         target = null;
     } 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     rules = new Rules(board);
 
@@ -438,7 +421,6 @@
             draw_pieces();
         },true);
 
-        
         $("#btnNewGame").click(function(evt) {
             whoseTurn = "black"; 
             update_flag(); 
@@ -458,6 +440,7 @@
           }
         });
 
+        //redo undone move when redo button is clicked 
         $("#btnRedo").click(function(evt){
 
             //retreiving crucial pieces of information about previous undo 
@@ -474,11 +457,11 @@
             disable_redo();  
         })
 
+        //undo last move when undo button is clicked 
         $("#btnUndo").click(function(evt){
             var undo_details = cache.pop(); 
             console.log(undo_details);
             var dead_pieces = undo_details.remove;
-
 
             //re-add all jumped over pieces 
             for (index in dead_pieces){
@@ -516,18 +499,6 @@
             //higlight the move, then disable button is needed 
             highlight_move(); 
             disable_undo(); 
-
-
-            //this.getCheckerAt = function(row, col){
-            //get the destination location (undo_details.to_col, to_row)
-            //get the previous location undo_details.from_col,from_row
-            //if made king, make regular piece again  undo_details.made_king
-            //move that checker to previous location 
-            //re-draw all jumped checkers undo_details.remove[0]?.col, color,isKing,etc
-            //draw on arrow canvas call highlight_move(); 
-             
-            //toggle move??
-            //update and call disable_buttons();
         })
 
         board.prepareNewGame();
