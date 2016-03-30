@@ -81,8 +81,6 @@
     var board;
     var rules;
     var whoseTurn = "black";
-    //var turnDirection = null;  
-    //var playerdirection = null;  
 
     var selected_color = "black"; 
     var drag = false; 
@@ -100,6 +98,7 @@
     var destCol = 0;
 
     var cache = [];
+    var redo_cache = []; 
 
     //turnDirection = directionOf(whoseTurn)
     //playerDirection = directionOf(checker.color)  
@@ -124,7 +123,7 @@
         }
     }
     
-    var disable_buttons = function(){
+    var disable_undo = function(){
         if (cache.length<1){
             $("#btnUndo").prop("disabled",true);
         }else{
@@ -132,10 +131,26 @@
         }
     }
 
+    var disable_redo = function(){
+        if (redo_cache.length<1){
+            $("#btnRedo").prop("disabled",true); 
+        }else{ //if there is something in cache 
+            if (redo_cache[redo_cache.length - 1] == "not_undo"){ 
+                $("#btnRedo").prop("disabled",true); 
+            }
+            else{
+                $("#btnRedo").prop("disabled",false); 
+            }
+        }
+    }
+
+
+
     // This allows the Javascript code inside this block to only run when the page
     // has finished loading in the browser.
     $(document).ready(function() {
-        disable_buttons(); 
+        disable_undo(); 
+        disable_redo(); 
         if ($.getUrlVar('size') && $.getUrlVar('size') >= 6) {
             size = $.getUrlVar('size'); 
             squaresize = board_pixel_dim/size;
@@ -171,7 +186,6 @@
         selected_color = e.target.className.split(" ")[0]; 
         if (selected_color == whoseTurn){
             stopDrag(); 
-            //edit mouseup!!! 
             // RESET zINDEX? 
             checkMove();
             //draw_pieces(); /*TESTER TESTER TESTER*/  
@@ -190,7 +204,10 @@
             board.moveTo(square_to_move,initialRow,initialCol); 
         }else{
             cache.push(move); //adding valid move to history!
-            disable_buttons(); 
+            disable_undo(); 
+
+            redo_cache.push("not_undo"); //adding valid move as most recent move! 
+            disable_redo();
         }
     }
 
@@ -434,13 +451,28 @@
           var result = rules.makeRandomMove(playerColor, playerDirection);
           if (result){
             cache.push(result); // adding to history!
-            disable_buttons(); //enabling button if disabled  
+            disable_undo(); //enabling button if disabled 
+
+            redo_cache.push("not_undo"); 
+            disable_redo();  
           }
-          /*if (result != null) {
-            //toggleTurn(playerColor);
-            //update_flag();
-          }*/ 
         });
+
+        $("#btnRedo").click(function(evt){
+
+            //retreiving crucial pieces of information about previous undo 
+            var redo_details = redo_cache.pop(); //[to_row,to_col,from_row,from_col]
+            var redo_piece = board.getCheckerAt(redo_details[0],redo_details[1]); 
+            //this.moveTo = function(checker, toRow, toCol)
+
+            //making re-doing last undo move 
+            var redo_result = rules.makeMove(redo_piece,directionOf(whoseTurn),directionOf(redo_piece.color),redo_details[2],redo_details[3]); 
+
+            //updating list of what can be undone
+            cache.push(redo_result); 
+            disable_undo();
+            disable_redo();  
+        })
 
         $("#btnUndo").click(function(evt){
             var undo_details = cache.pop(); 
@@ -470,6 +502,10 @@
             from_col = undo_details.to_col; 
             from_row = undo_details.to_row;
 
+            //noting that last move was undo w/ these details 
+            redo_cache.push([to_row,to_col,from_row,from_col]);
+            disable_redo(); //call to make redo valid now  
+
             //toggle back to undo'd player 
             toggleTurn(whoseTurn);
 
@@ -479,7 +515,7 @@
 
             //higlight the move, then disable button is needed 
             highlight_move(); 
-            disable_buttons(); 
+            disable_undo(); 
 
 
             //this.getCheckerAt = function(row, col){
