@@ -22,6 +22,8 @@
 			  <tr><td id="flag"></td></tr>
               <tr><td><input id="btnNewGame" type="button" name="new" value="New Game"/></td></tr>
               <tr><td><input id="btnAutoMove" type="button" name="new" value="Auto Move"/></td></tr>
+              <tr><td><input id="btnUndo" type="button" name="new" value="Undo"/></td></tr>
+              <tr><td><input id="btnRedo" type="button" name="new" value="Redo"/></td></tr>
 
             </table>
         </td>
@@ -95,7 +97,9 @@
     var initialRow = 0; 
     var initialCol = 0; 
     var destRow = 0; 
-    var destCol = 0; 
+    var destCol = 0;
+
+    var cache = [];
 
     //turnDirection = directionOf(whoseTurn)
     //playerDirection = directionOf(checker.color)  
@@ -119,12 +123,19 @@
                 return whoseTurn;
         }
     }
-
-
+    
+    var disable_buttons = function(){
+        if (cache.length<1){
+            $("#btnUndo").prop("disabled",true);
+        }else{
+            $("#btnUndo").prop("disabled",false);
+        }
+    }
 
     // This allows the Javascript code inside this block to only run when the page
     // has finished loading in the browser.
     $(document).ready(function() {
+        disable_buttons(); 
         if ($.getUrlVar('size') && $.getUrlVar('size') >= 6) {
             size = $.getUrlVar('size'); 
             squaresize = board_pixel_dim/size;
@@ -135,6 +146,8 @@
             board = new Board(DEFAULT_BOARD_SIZE);
             draw_checkerboard(DEFAULT_BOARD_SIZE); 
         }
+
+    
 
     $("#content").mousedown(function(e){
         selected_color = e.target.className.split(" ")[0];
@@ -168,28 +181,19 @@
 
     function checkMove(){
         var square_to_move = board.square[initialRow][initialCol];
-        var move = rules.makeMove(square_to_move,directionOf(whoseTurn),directionOf(square_to_move.color),destRow,destCol); 
+        var move = rules.makeMove(square_to_move,directionOf(whoseTurn),directionOf(square_to_move.color),destRow,destCol);
 
         if (!move){
             console.log("NOT VALID");
             move_was_valid = false; 
             board.remove(square_to_move); 
             board.moveTo(square_to_move,initialRow,initialCol); 
+        }else{
+            cache.push(move); //adding valid move to history!
+            disable_buttons(); 
         }
     }
-    /*
-        if (board.isEmptyLocation(destRow,destCol) && destRow < size && destCol < size){
-            board.moveTo(square_to_move,destRow,destCol);
-            //console.log("should be moved to new spot");
-        }
-        else{
-            //console.log("should be moved back");
-            move_was_valid = false; 
-            board.remove(square_to_move);
-            board.moveTo(square_to_move,initialRow,initialCol);
-            //console.log("moved square back");
-        } 
-*/ 
+
 
     function startDrag(e) {
         initialLeft = parseInt(target.style.left,10); 
@@ -377,7 +381,7 @@
 
         //dispatched when new checker is added to board, maybe generating new board from start and from old board 
         board.addEventListener('add',function (e) {  
-            whoseTurn = "black"; 
+            //whoseTurn = "black"; 
             update_flag();
             $("#arrow_canvas").remove();
             draw_pieces(); 
@@ -419,6 +423,8 @@
 
         
         $("#btnNewGame").click(function(evt) {
+            whoseTurn = "black"; 
+            update_flag(); 
             board.prepareNewGame();
         });
 
@@ -426,11 +432,67 @@
           var playerColor = whoseTurn;
           var playerDirection = directionOf(playerColor);
           var result = rules.makeRandomMove(playerColor, playerDirection);
+          if (result){
+            cache.push(result); // adding to history!
+            disable_buttons(); //enabling button if disabled  
+          }
           /*if (result != null) {
             //toggleTurn(playerColor);
             //update_flag();
           }*/ 
         });
+
+        $("#btnUndo").click(function(evt){
+            var undo_details = cache.pop(); 
+            console.log(undo_details);
+            var dead_pieces = undo_details.remove;
+
+
+            //re-add all jumped over pieces 
+            for (index in dead_pieces){
+                console.log("Jumped Piece: "+dead_pieces[index].color);
+                var piece_color = dead_pieces[index].color; 
+                var kingship = dead_pieces[index].isKing; 
+                var piece_col = dead_pieces[index].col; 
+                var piece_row = dead_pieces[index].row; 
+                var jumped_piece = new Checker(piece_color,kingship); 
+                board.add(jumped_piece,piece_row,piece_col); 
+            }
+
+            //moving back the main piece 
+            var desired_piece = board.getCheckerAt(undo_details.to_row,undo_details.to_col); 
+            if (undo_details.made_king){
+                desired_piece = new Checker(desired_piece.color,false); //resetting piece to pawn
+            }
+            //reversed! & saving information for highlight_move to work correctly 
+            to_col = undo_details.from_col;  
+            to_row = undo_details.from_row; 
+            from_col = undo_details.to_col; 
+            from_row = undo_details.to_row;
+
+            //toggle back to undo'd player 
+            toggleTurn(whoseTurn);
+
+            //remove and add desired piece 
+            board.removeAt(undo_details.to_row,undo_details.to_col);
+            board.add(desired_piece,undo_details.from_row,undo_details.from_col); 
+
+            //higlight the move, then disable button is needed 
+            highlight_move(); 
+            disable_buttons(); 
+
+
+            //this.getCheckerAt = function(row, col){
+            //get the destination location (undo_details.to_col, to_row)
+            //get the previous location undo_details.from_col,from_row
+            //if made king, make regular piece again  undo_details.made_king
+            //move that checker to previous location 
+            //re-draw all jumped checkers undo_details.remove[0]?.col, color,isKing,etc
+            //draw on arrow canvas call highlight_move(); 
+             
+            //toggle move??
+            //update and call disable_buttons();
+        })
 
         board.prepareNewGame();
 
