@@ -87,7 +87,7 @@
     var drag = false; 
     var offsetX = 0; 
     var offsetY = 0;
-    var zIndex = 2; 
+    var zIndex = 2;  
     var target = null;
     var move_was_valid = true;  
 
@@ -98,6 +98,9 @@
     var initialCol = 0; 
     var destRow = 0; 
     var destCol = 0;
+
+    var mouse_is_down = false;
+    var out = false;
 
     //variables to manage queues for redo/undo functionality
     var cache = [];
@@ -170,8 +173,10 @@
     $("#content").mousedown(function(e){
         selected_color = e.target.className.split(" ")[0];
         if (selected_color == whoseTurn){
+            mouse_is_down = true; 
             target = e.target;
-            e.target.style.zIndex = zIndex; 
+            target.style.zIndex = zIndex; 
+            console.log("target before: "+target.style.zIndex); 
             startDrag(e); 
             return false;
         }
@@ -180,32 +185,60 @@
     //begin dragging element on board
     $(document).mousemove(function(e){
         if (target) {
+            console.log("mouse moving");
+            mouse_is_down = true;
+            console.log(e.pageX);
             dragDiv(e);
         }
+        return false;
     })
+/*
+    $(document).mouseleave(function(e_out){
+        console.log("mouse left!");
+        if (!e_out.relatedTarget && mouse_is_down){
+            console.log("mouse left and is down");
+            stopDrag(); 
+            //checkMove();
+            mouse_is_down=false; 
+            return false; //don't know if i need this 
+        }
 
+    })*/
+
+
+
+//changed e.target below in mouseup to e.target
+
+    // RESET zINDEX? 
     //drop element if appropriate 
     $(document).mouseup(function (e) {
-        selected_color = e.target.className.split(" ")[0]; 
+        console.log("mouse up detected");
+
+        mouse_is_down = false; 
+        //this is e.target because need to filter for mouseups on 
+        //pieces not random mouseups
+        if (target){
+        selected_color = target.className.split(" ")[0]; 
         if (selected_color == whoseTurn){
             stopDrag(); 
-            // RESET zINDEX? 
+            console.log("called checkMove in mouseup");
             checkMove();
             return false;
-        }
+        }}
     })
 
     //function to check the validity of desired drag move 
     function checkMove(){
         var square_to_move = board.square[initialRow][initialCol];
+        console.log("initialrow/col: "+initialRow+","+initialCol);
         var move = rules.makeMove(square_to_move,directionOf(whoseTurn),directionOf(square_to_move.color),destRow,destCol);
 
         if (!move){
-            console.log("NOT VALID");
             move_was_valid = false; 
             board.remove(square_to_move); 
             board.moveTo(square_to_move,initialRow,initialCol); 
         }else{
+            console.log("load undo in checkmove");
             cache.push(move); //adding valid move to history!
             disable_undo(); 
 
@@ -223,6 +256,7 @@
 
         initialCol = Math.round(initialLeft/squaresize); 
         initialRow = Math.round(initialTop/squaresize); 
+        console.log("set initials: "+initialRow+","+initialCol);
 
         offsetX = e.clientX;
         offsetY = e.clientY;
@@ -245,6 +279,7 @@
         destRow = Math.round(parseInt(target.style.top,10)/ squaresize); 
         destCol = Math.round(parseInt(target.style.left,10)/squaresize); 
         drag=false;
+        console.log("target is nulled");
         target = null;
     } 
 
@@ -389,8 +424,6 @@
 
         //dispatched when checker is moved from current square to another square 
         board.addEventListener('move',function (e) { 
-            console.log("Move Add Event Listener Called");
-            //console.log("Move: Object: "+e.details);
             
             to_col = e.details.toCol; 
             to_row = e.details.toRow;
@@ -406,7 +439,6 @@
                 highlight_move(); 
             }
             move_was_valid = true;
-            console.log("drawing pieces now.."); 
             draw_pieces(); 
             },true);
 
@@ -432,6 +464,7 @@
           var playerDirection = directionOf(playerColor);
           var result = rules.makeRandomMove(playerColor, playerDirection);
           if (result){
+            console.log("load cache in button");
             cache.push(result); // adding to history!
             disable_undo(); //enabling button if disabled 
 
@@ -460,12 +493,10 @@
         //undo last move when undo button is clicked 
         $("#btnUndo").click(function(evt){
             var undo_details = cache.pop(); 
-            console.log(undo_details);
             var dead_pieces = undo_details.remove;
 
             //re-add all jumped over pieces 
             for (index in dead_pieces){
-                console.log("Jumped Piece: "+dead_pieces[index].color);
                 var piece_color = dead_pieces[index].color; 
                 var kingship = dead_pieces[index].isKing; 
                 var piece_col = dead_pieces[index].col; 
