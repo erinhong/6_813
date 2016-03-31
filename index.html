@@ -84,7 +84,7 @@
 
     //variables for dragging pieces around board 
     var selected_color = "black"; 
-    var drag = false; 
+    //var drag = false; 
     var offsetX = 0; 
     var offsetY = 0;
     var zIndex = 2;  
@@ -192,31 +192,12 @@
         }
         return false;
     })
-/*
-    $(document).mouseleave(function(e_out){
-        console.log("mouse left!");
-        if (!e_out.relatedTarget && mouse_is_down){
-            console.log("mouse left and is down");
-            stopDrag(); 
-            //checkMove();
-            mouse_is_down=false; 
-            return false; //don't know if i need this 
-        }
 
-    })*/
-
-
-
-//changed e.target below in mouseup to e.target
-
-    // RESET zINDEX? 
     //drop element if appropriate 
     $(document).mouseup(function (e) {
         console.log("mouse up detected");
 
         mouse_is_down = false; 
-        //this is e.target because need to filter for mouseups on 
-        //pieces not random mouseups
         if (target){
         selected_color = target.className.split(" ")[0]; 
         if (selected_color == whoseTurn){
@@ -263,7 +244,7 @@
         
         coordX = parseInt(target.style.left);
         coordY = parseInt(target.style.top);
-        drag = true;  
+        //drag = true;  
         return false;
             
         }
@@ -278,8 +259,7 @@
     function stopDrag() {
         destRow = Math.round(parseInt(target.style.top,10)/ squaresize); 
         destCol = Math.round(parseInt(target.style.left,10)/squaresize); 
-        drag=false;
-        console.log("target is nulled");
+        //drag=false;
         target = null;
     } 
 
